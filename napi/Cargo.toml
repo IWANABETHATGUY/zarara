@@ -1,0 +1,19 @@
+[package]
+name = "acyclic_output_fuzz_napi"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+acyclic_output_fuzz = { path = "../acyclic_output_fuzz" }
+napi = { version = "2", default-features = false, features = ["napi8"] }
+napi-derive = "2"
+
+[build-dependencies]
+napi-build = "2"
+
+[profile.release]
+lto = true

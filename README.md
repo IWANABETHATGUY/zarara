@@ -22,6 +22,8 @@ When a failure is found, the test prints markdown with:
 
 - `acyclic_output_fuzz/`
   - Rust crate with the property test and fixture generator
+- `napi/`
+  - napi-rs binding exposing the fixture generator as an npm package
 - `rolldown/`
   - Rolldown source as a submodule dependency for the harness
 - `.github/workflows/acyclic_output_fuzz.yml`

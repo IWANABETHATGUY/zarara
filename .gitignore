@@ -21,3 +21,7 @@ target
 #.idea/
 
 fixtures
+
+# Node / pnpm
+node_modules
+.pnpm-store

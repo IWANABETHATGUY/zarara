@@ -1,0 +1,30 @@
+{
+  "name": "acyclic-output-fuzz",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "*.node"
+  ],
+  "napi": {
+    "name": "acyclic-output-fuzz",
+    "triples": {
+      "defaults": true
+    }
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.4"
+  },
+  "scripts": {
+    "build": "napi build --platform --release",
+    "build:release": "napi build --platform --release",
+    "build:dev": "napi build --platform",
+    "example": "node examples/generate.mjs"
+  },
+  "engines": {
+    "node": ">= 18"
+  }
+}
