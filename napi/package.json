@@ -1,27 +1,54 @@
 {
-  "name": "acyclic-output-fuzz",
+  "name": "rolldown-zarara",
   "version": "0.1.0",
-  "private": true,
+  "description": "Fixture generator that fuzzes rolldown for circular-reference outputs",
+  "license": "MIT",
+  "author": "IWANABETHATGUY",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IWANABETHATGUY/zarara.git",
+    "directory": "napi"
+  },
+  "homepage": "https://github.com/IWANABETHATGUY/zarara/tree/main/napi#readme",
+  "bugs": {
+    "url": "https://github.com/IWANABETHATGUY/zarara/issues"
+  },
+  "keywords": [
+    "rolldown",
+    "bundler",
+    "fuzz",
+    "napi",
+    "circular-reference"
+  ],
   "main": "index.js",
   "types": "index.d.ts",
   "files": [
     "index.js",
     "index.d.ts",
-    "*.node"
+    "README.md"
   ],
   "napi": {
-    "name": "acyclic-output-fuzz",
+    "name": "rolldown-zarara",
     "triples": {
-      "defaults": true
+      "defaults": false,
+      "additional": [
+        "x86_64-apple-darwin",
+        "aarch64-apple-darwin",
+        "x86_64-unknown-linux-gnu",
+        "aarch64-unknown-linux-gnu",
+        "x86_64-pc-windows-msvc"
+      ]
     }
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.18.4"
   },
   "scripts": {
+    "artifacts": "napi artifacts",
     "build": "napi build --platform --release",
     "build:release": "napi build --platform --release",
     "build:dev": "napi build --platform",
+    "prepublishOnly": "napi prepublish -t npm",
     "example": "node examples/generate.mjs"
   },
   "engines": {

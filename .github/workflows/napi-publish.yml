@@ -1,0 +1,128 @@
+name: napi-publish
+
+on:
+  push:
+    tags:
+      - 'napi-v*'
+  workflow_dispatch:
+
+env:
+  DEBUG: napi:*
+  APP_NAME: rolldown-zarara
+  MACOSX_DEPLOYMENT_TARGET: '10.13'
+
+jobs:
+  build:
+    name: ${{ matrix.settings.target }}
+    runs-on: ${{ matrix.settings.host }}
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - host: macos-latest
+            target: x86_64-apple-darwin
+            build: pnpm --filter rolldown-zarara exec napi build --platform --release --target x86_64-apple-darwin
+          - host: macos-latest
+            target: aarch64-apple-darwin
+            build: pnpm --filter rolldown-zarara exec napi build --platform --release --target aarch64-apple-darwin
+          - host: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            build: pnpm --filter rolldown-zarara exec napi build --platform --release --target x86_64-unknown-linux-gnu
+          - host: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            build: pnpm --filter rolldown-zarara exec napi build --platform --release --target aarch64-unknown-linux-gnu --use-napi-cross
+          - host: windows-latest
+            target: x86_64-pc-windows-msvc
+            build: pnpm --filter rolldown-zarara exec napi build --platform --release --target x86_64-pc-windows-msvc
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.settings.target }}
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ matrix.settings.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: ${{ matrix.settings.build }}
+        shell: bash
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-${{ matrix.settings.target }}
+          path: napi/${{ env.APP_NAME }}.*.node
+          if-no-files-found: error
+
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: napi/artifacts
+
+      - name: Move artifacts into per-triple npm dirs
+        working-directory: napi
+        run: pnpm exec napi artifacts
+
+      - name: List packages
+        working-directory: napi
+        run: ls -R ./npm
+        shell: bash
+
+      - name: Publish to npm
+        working-directory: napi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          npm publish --access public
+        shell: bash

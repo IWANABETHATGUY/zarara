@@ -1,0 +1,13 @@
+{
+  "name": "rolldown-zarara-linux-arm64-gnu",
+  "version": "0.1.0",
+  "os": ["linux"],
+  "cpu": ["arm64"],
+  "libc": ["glibc"],
+  "main": "rolldown-zarara.linux-arm64-gnu.node",
+  "files": ["rolldown-zarara.linux-arm64-gnu.node"],
+  "license": "MIT",
+  "engines": {
+    "node": ">= 18"
+  }
+}

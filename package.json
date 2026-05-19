@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "pnpm --filter acyclic-output-fuzz build:release",
-    "build:release": "pnpm --filter acyclic-output-fuzz build:release",
-    "build:dev": "pnpm --filter acyclic-output-fuzz build:dev"
+    "build": "pnpm --filter rolldown-zarara build:release",
+    "build:release": "pnpm --filter rolldown-zarara build:release",
+    "build:dev": "pnpm --filter rolldown-zarara build:dev",
+    "example": "pnpm --filter rolldown-zarara example",
+    "bump": "node scripts/bump-version.mjs"
   },
   "engines": {
     "node": ">= 18"
