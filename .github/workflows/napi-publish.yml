@@ -96,9 +96,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm CLI
+        # Need npm >= 11.5.1 for OIDC trusted publishing
+        run: npm install -g npm@latest
+        shell: bash
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -120,9 +125,6 @@ jobs:
       - name: Publish to npm
         working-directory: napi
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-          npm publish --access public
+          NPM_CONFIG_PROVENANCE: 'true'
+        run: npm publish --access public
         shell: bash

@@ -48,7 +48,19 @@ const root = resolve(fileURLToPath(import.meta.url), '../..')
 const stagingRoot = resolve(root, '.bootstrap-placeholders')
 mkdirSync(stagingRoot, { recursive: true })
 
+let skipped = 0
+let published = 0
+let failed = 0
+
 for (const name of PACKAGES) {
+  // Skip if this exact name already exists on npm (any version) — we just
+  // need each name to exist so Trusted Publishers can be attached.
+  if (!dryRun && packageExists(name)) {
+    console.log(`= ${name} already on npm, skipping`)
+    skipped++
+    continue
+  }
+
   const dir = resolve(stagingRoot, name)
   mkdirSync(dir, { recursive: true })
 
@@ -76,19 +88,40 @@ for (const name of PACKAGES) {
   // Don't echo the OTP into stdout.
   const shown = `npm publish --access public${dryRun ? ' --dry-run' : ''}${otp ? ' --otp=******' : ''}`
   console.log(`\n> ${shown}    (cwd: ${dir})`)
-  execSync(cmd, { cwd: dir, stdio: 'inherit' })
+  try {
+    execSync(cmd, { cwd: dir, stdio: 'inherit' })
+    published++
+  } catch {
+    failed++
+    console.error(`! publish failed for ${name}, continuing with the rest`)
+  }
+}
+
+function packageExists(name) {
+  try {
+    execSync(`npm view ${name} name`, { stdio: 'pipe' })
+    return true
+  } catch {
+    return false
+  }
 }
 
 console.log('\n----------------------------------------')
 if (dryRun) {
   console.log('Dry run complete. Re-run without --dry-run to actually publish.')
 } else {
-  console.log('All placeholders published. Next steps:')
+  console.log(
+    `Published ${published}, skipped ${skipped} (already on npm), failed ${failed}.`,
+  )
+  if (failed > 0) {
+    console.log('\nRe-run the script after fixing the cause of the failure.')
+    process.exit(1)
+  }
+  console.log('\nNext steps:')
   console.log('  1. On npmjs.com, open each of the 6 packages and configure')
   console.log('     Trusted Publishers (GitHub Actions / IWANABETHATGUY / zarara /')
   console.log('     workflow: napi-publish.yml).')
   console.log('  2. Tell me when that is done and I will update the workflow to')
   console.log('     remove NPM_TOKEN and use OIDC + --provenance.')
-  console.log('  3. Delete the npm token + the GitHub NPM_TOKEN secret.')
-  console.log(`  4. Clean up staging: rm -rf ${stagingRoot}`)
+  console.log(`  3. Clean up staging: rm -rf ${stagingRoot}`)
 }

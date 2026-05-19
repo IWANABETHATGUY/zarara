@@ -13,6 +13,10 @@ importers:
       '@napi-rs/cli':
         specifier: ^2.18.4
         version: 2.18.4
+    optionalDependencies:
+      rolldown-zarara-win32-x64-msvc:
+        specifier: 0.1.0
+        version: 0.1.0
 
 packages:
 
@@ -21,6 +25,15 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
+  rolldown-zarara-win32-x64-msvc@0.1.0:
+    resolution: {integrity: sha512-YqEK/YmxxijbwQ7HF6ox8/9xxQ8M0i4H+BgR+tFCEjVw2wmAY1ApdcYORSg8m7JL7EFQPJtIRxqgove2YVVmwA==}
+    engines: {node: '>= 18'}
+    cpu: [x64]
+    os: [win32]
+
 snapshots:
 
   '@napi-rs/cli@2.18.4': {}
+
+  rolldown-zarara-win32-x64-msvc@0.1.0:
+    optional: true
