@@ -7,7 +7,8 @@
     "build:release": "pnpm --filter rolldown-zarara build:release",
     "build:dev": "pnpm --filter rolldown-zarara build:dev",
     "example": "pnpm --filter rolldown-zarara example",
-    "bump": "node scripts/bump-version.mjs"
+    "bump": "node scripts/bump-version.mjs",
+    "bootstrap:placeholders": "node scripts/bootstrap-placeholders.mjs"
   },
   "engines": {
     "node": ">= 18"
