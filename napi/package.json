@@ -1,6 +1,6 @@
 {
   "name": "rolldown-zarara",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "description": "Fixture generator that fuzzes rolldown for circular-reference outputs",
   "license": "MIT",
   "author": "IWANABETHATGUY",
