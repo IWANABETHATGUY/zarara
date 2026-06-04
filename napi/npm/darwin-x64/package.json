@@ -1,6 +1,11 @@
 {
   "name": "rolldown-zarara-darwin-x64",
-  "version": "0.1.4",
+  "version": "0.1.5",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IWANABETHATGUY/zarara.git",
+    "directory": "napi/npm/darwin-x64"
+  },
   "os": [
     "darwin"
   ],

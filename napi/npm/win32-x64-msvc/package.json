@@ -1,6 +1,11 @@
 {
   "name": "rolldown-zarara-win32-x64-msvc",
-  "version": "0.1.4",
+  "version": "0.1.5",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IWANABETHATGUY/zarara.git",
+    "directory": "napi/npm/win32-x64-msvc"
+  },
   "os": [
     "win32"
   ],
