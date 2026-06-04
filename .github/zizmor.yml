@@ -1,0 +1,7 @@
+rules:
+  cache-poisoning:
+    ignore:
+      # napi-publish.yml runs only on `napi-v*` tag pushes (and manual
+      # dispatch) — there is no PR/fork trigger that could write a poisoned
+      # cache, and setup-node is used without `cache:`. Low-confidence FP.
+      - napi-publish.yml

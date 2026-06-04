@@ -6,6 +6,9 @@ on:
       - 'napi-v*'
   workflow_dispatch:
 
+# Least privilege by default; jobs opt into exactly what they need.
+permissions: {}
+
 env:
   DEBUG: napi:*
   APP_NAME: rolldown-zarara
@@ -15,6 +18,8 @@ jobs:
   build:
     name: ${{ matrix.settings.target }}
     runs-on: ${{ matrix.settings.host }}
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -36,24 +41,24 @@ jobs:
             build: pnpm --filter rolldown-zarara exec napi build --platform --release --target x86_64-pc-windows-msvc
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: recursive
+          persist-credentials: false
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
-          cache: pnpm
 
       - name: Install Rust toolchain
         # Must match rust-toolchain.toml (1.95.0); otherwise rustup honors the
         # toml override at build time and the cross-target std added here to a
         # different toolchain is invisible -> "can't find crate for `core`".
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: '1.95.0'
           targets: ${{ matrix.settings.target }}
@@ -61,19 +66,9 @@ jobs:
       - name: Install zig
         # napi CLI v2 cross-compiles via zig as the linker (the `--zig` flag).
         if: contains(matrix.settings.build, '--zig')
-        uses: goto-bus-stop/setup-zig@v2
+        uses: goto-bus-stop/setup-zig@abea47f85e598557f500fa1fd2ab7464fcb39406 # v2
         with:
           version: 0.13.0
-
-      - name: Cache cargo
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ matrix.settings.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -83,7 +78,7 @@ jobs:
         shell: bash
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: bindings-${{ matrix.settings.target }}
           path: napi/${{ env.APP_NAME }}.*.node
@@ -94,21 +89,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      contents: write
-      id-token: write
+      contents: write # create the GitHub Release + upload .node assets
+      id-token: write # OIDC for npm trusted publishing + provenance
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: recursive
+          persist-credentials: false
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
-          cache: pnpm
           registry-url: 'https://registry.npmjs.org'
 
       - name: Upgrade npm CLI
@@ -120,7 +115,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           path: napi/artifacts
 
