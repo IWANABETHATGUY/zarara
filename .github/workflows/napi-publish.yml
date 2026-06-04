@@ -50,8 +50,12 @@ jobs:
           cache: pnpm
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        # Must match rust-toolchain.toml (1.95.0); otherwise rustup honors the
+        # toml override at build time and the cross-target std added here to a
+        # different toolchain is invisible -> "can't find crate for `core`".
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: '1.95.0'
           targets: ${{ matrix.settings.target }}
 
       - name: Cache cargo
